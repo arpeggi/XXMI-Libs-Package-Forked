@@ -871,6 +871,12 @@ HRESULT WINAPI D3D11CreateDevice(
 	if (ForceDX11(const_cast<D3D_FEATURE_LEVEL*>(pFeatureLevels)))
 		return E_INVALIDARG;
 
+	if (G->force_multithreaded_device.load(std::memory_order_relaxed) &&
+		(Flags & D3D11_CREATE_DEVICE_SINGLETHREADED)) {
+		Flags &= ~static_cast<UINT>(D3D11_CREATE_DEVICE_SINGLETHREADED);
+		LogInfo("  force_multithreaded_device: cleared D3D11_CREATE_DEVICE_SINGLETHREADED\n");
+	}
+
 #if _DEBUG_LAYER
 	Flags = EnableDebugFlags(Flags);
 #endif
@@ -995,6 +1001,12 @@ HRESULT WINAPI D3D11CreateDeviceAndSwapChain(
 
 	if (ForceDX11(const_cast<D3D_FEATURE_LEVEL*>(pFeatureLevels)))
 		return E_INVALIDARG;
+
+	if (G->force_multithreaded_device.load(std::memory_order_relaxed) &&
+		(Flags & D3D11_CREATE_DEVICE_SINGLETHREADED)) {
+		Flags &= ~static_cast<UINT>(D3D11_CREATE_DEVICE_SINGLETHREADED);
+		LogInfo("  force_multithreaded_device: cleared D3D11_CREATE_DEVICE_SINGLETHREADED\n");
+	}
 
 #if _DEBUG_LAYER
 	Flags = EnableDebugFlags(Flags);
